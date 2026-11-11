@@ -1,0 +1,159 @@
+name: Publicar app Caras de Pau
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Montar a tela de entrada
+        run: |
+          set -e
+          mkdir site
+          pip install --quiet pillow
+          cat > site/index.html <<'FIM_INDEX'
+          <!doctype html>
+          <html lang="pt-BR">
+          <head>
+          <meta charset="utf-8">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://portocomunicacao.app.n8n.cloud; frame-src https://drive.google.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
+          <meta name="referrer" content="no-referrer">
+          <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+          <meta name="theme-color" content="#1e1b4b">
+          <meta name="robots" content="noindex,nofollow">
+          <link rel="manifest" href="manifest.webmanifest">
+          <link rel="icon" href="favicon.png">
+          <link rel="apple-touch-icon" href="apple-touch-icon.png">
+          <title>Os Caras de Pau do Vestibular</title>
+          <style>
+          *{box-sizing:border-box}
+          body{margin:0;min-height:100vh;background:#1e1b4b;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#17251c;display:flex;align-items:center;justify-content:center;padding:16px}
+          .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:min(380px,100%);padding:28px 24px;display:flex;flex-direction:column;gap:14px;text-align:center}
+          .card img{width:96px;height:96px;margin:0 auto;object-fit:contain}
+          h1{margin:0;font-size:21px;letter-spacing:.04em;text-transform:uppercase;color:#1e1b4b}
+          p{margin:0;color:#56655b;font-size:14px}
+          label{display:block;text-align:left;font-size:13px;font-weight:600;margin-bottom:4px}
+          input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid #c9d4cc;border-radius:10px}
+          input:focus{outline:2px solid #312e81;border-color:#312e81}
+          button{font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:10px;background:#312e81;color:#fff;cursor:pointer}
+          button:disabled{opacity:.6}
+          .err{color:#b42318;font-size:14px;min-height:1em}
+          [hidden]{display:none!important}
+          </style>
+          </head>
+          <body>
+          <form class="card" id="f" autocomplete="on" hidden>
+            <img src="icon-192.png" alt="Os Caras de Pau do Vestibular">
+            <h1>Os Caras de Pau do Vestibular</h1>
+            <p>Entre com o usuário e a senha que o curso te passou</p>
+            <div><label for="u">Usuário</label><input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+            <div><label for="s">Senha</label><input id="s" type="password" autocomplete="current-password" required></div>
+            <div class="err" id="e" role="alert"></div>
+            <button id="b" type="submit">Entrar</button>
+            <p>Esqueceu a senha? Peça à coordenação do curso para criar uma nova.</p>
+          </form>
+          <div class="card" id="c"><img src="icon-192.png" alt=""><p>Carregando…</p></div>
+          <script>
+          (function(){
+          "use strict";
+          var API="https://portocomunicacao.app.n8n.cloud/webhook/",SKEY="cdp.sessao";
+          var f=document.getElementById("f"),c=document.getElementById("c"),u=document.getElementById("u"),s=document.getElementById("s"),e=document.getElementById("e"),b=document.getElementById("b");
+          function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(_){}return null;}
+          function post(p,body){return fetch(API+p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error("servidor");return r.json();});}
+          function form(msg){c.hidden=true;f.hidden=false;e.textContent=msg||"";u.value=ls("cdp.ultimoUsuario")||"";setTimeout(function(){(u.value?s:u).focus();},50);}
+          function abrir(tok){
+            return post("cdp-app-codigo",{token:tok}).then(function(j){
+              if(j&&j.ok&&j.html){document.open();document.write(j.html);document.close();return true;}
+              if(j&&j.code==="sessao")ls(SKEY,null);
+              return false;
+            });
+          }
+          f.addEventListener("submit",function(ev){
+            ev.preventDefault();e.textContent="";
+            var usuario=u.value.trim().toLowerCase(),senha=s.value;
+            if(!usuario||!senha){e.textContent="Preencha usuário e senha.";return;}
+            b.disabled=true;b.textContent="Entrando…";
+            post("cdp-app",{a:"login",usuario:usuario,senha:senha}).then(function(j){
+              if(!j||!j.ok){e.textContent=(j&&j.erro)||"Usuário ou senha incorretos.";s.select();return;}
+              ls(SKEY,j.token);ls("cdp.ultimoUsuario",usuario);s.value="";
+              return abrir(j.token).then(function(ok){if(!ok)e.textContent="Não consegui abrir o app. Tente de novo.";});
+            }).catch(function(){e.textContent="Não consegui conectar. Confira a internet e tente de novo.";})
+            .then(function(){b.disabled=false;b.textContent="Entrar";});
+          });
+          var t=ls(SKEY);
+          if(t){abrir(t).then(function(ok){if(!ok)form();}).catch(function(){form("Sem conexão com o servidor. Confira a internet.");});}
+          else form();
+          if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+          })();
+          </script>
+          </body>
+          </html>
+          FIM_INDEX
+          cat > site/sw.js <<'FIM_SW'
+          const C="cdp-v1";const FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","favicon.png"];
+          self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting();});
+          self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});
+          self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(e.request.method!=="GET"||u.origin!==location.origin)return;
+           e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r;}).catch(()=>caches.match(e.request).then(r=>r||caches.match("index.html"))));});
+          FIM_SW
+          cat > site/manifest.webmanifest <<'FIM_MF'
+          {
+           "name": "Os Caras de Pau do Vestibular",
+           "short_name": "Caras de Pau",
+           "start_url": "./",
+           "scope": "./",
+           "display": "standalone",
+           "background_color": "#1e1b4b",
+           "theme_color": "#1e1b4b",
+           "lang": "pt-BR",
+           "icons": [
+            {
+             "src": "icon-192.png",
+             "sizes": "192x192",
+             "type": "image/png"
+            },
+            {
+             "src": "icon-512.png",
+             "sizes": "512x512",
+             "type": "image/png"
+            },
+            {
+             "src": "icon-maskable-512.png",
+             "sizes": "512x512",
+             "type": "image/png",
+             "purpose": "maskable"
+            }
+           ]
+          }
+          FIM_MF
+          python3 - <<'FIM_PY'
+          import glob
+          from PIL import Image,ImageDraw,ImageFont
+          fs=sorted(glob.glob('/usr/share/fonts/**/DejaVuSans-Bold.ttf',recursive=True))
+          def fnt(n):
+              return ImageFont.truetype(fs[0],n) if fs else ImageFont.load_default(size=n)
+          def icon(sz,pad,rad,path):
+              im=Image.new('RGB',(sz,sz),(30,27,75));d=ImageDraw.Draw(im)
+              p=int(sz*pad);d.rounded_rectangle([p,p,sz-p,sz-p],radius=int(sz*rad),fill=(250,204,21))
+              f=fnt(int((sz-2*p)*0.42));b=d.textbbox((0,0),'CP',font=f)
+              d.text(((sz-(b[2]-b[0]))/2-b[0],(sz-(b[3]-b[1]))/2-b[1]),'CP',font=f,fill=(30,27,75))
+              im.save(path)
+          icon(192,.12,.14,'site/icon-192.png');icon(512,.12,.14,'site/icon-512.png');icon(512,.22,.12,'site/icon-maskable-512.png');icon(180,.12,.14,'site/apple-touch-icon.png');icon(64,.06,.16,'site/favicon.png')
+          FIM_PY
+          ls -la site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
