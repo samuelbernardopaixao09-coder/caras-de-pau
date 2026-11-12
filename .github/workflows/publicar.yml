@@ -30,7 +30,7 @@ jobs:
           <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://portocomunicacao.app.n8n.cloud; frame-src https://drive.google.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
           <meta name="referrer" content="no-referrer">
           <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-          <meta name="theme-color" content="#1e1b4b">
+          <meta name="theme-color" content="#1b222a">
           <meta name="robots" content="noindex,nofollow">
           <link rel="manifest" href="manifest.webmanifest">
           <link rel="icon" href="favicon.png">
@@ -38,15 +38,15 @@ jobs:
           <title>Os Caras de Pau do Vestibular</title>
           <style>
           *{box-sizing:border-box}
-          body{margin:0;min-height:100vh;background:#1e1b4b;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#17251c;display:flex;align-items:center;justify-content:center;padding:16px}
+          body{margin:0;min-height:100vh;background:#1b222a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#111418;display:flex;align-items:center;justify-content:center;padding:16px}
           .card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:min(380px,100%);padding:28px 24px;display:flex;flex-direction:column;gap:14px;text-align:center}
-          .card img{width:96px;height:96px;margin:0 auto;object-fit:contain}
-          h1{margin:0;font-size:21px;letter-spacing:.04em;text-transform:uppercase;color:#1e1b4b}
-          p{margin:0;color:#56655b;font-size:14px}
+          .card img{width:132px;height:132px;margin:0 auto;border-radius:50%;object-fit:cover}
+          h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+          p{margin:0;color:#5f656d;font-size:14px}
           label{display:block;text-align:left;font-size:13px;font-weight:600;margin-bottom:4px}
-          input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid #c9d4cc;border-radius:10px}
-          input:focus{outline:2px solid #312e81;border-color:#312e81}
-          button{font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:10px;background:#312e81;color:#fff;cursor:pointer}
+          input{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid #cfd2d6;border-radius:10px}
+          input:focus{outline:2px solid #1b222a;border-color:#1b222a}
+          button{font:inherit;font-weight:700;font-size:16px;padding:12px;border:0;border-radius:10px;background:#1b222a;color:#fff;cursor:pointer}
           button:disabled{opacity:.6}
           .err{color:#b42318;font-size:14px;min-height:1em}
           [hidden]{display:none!important}
@@ -54,16 +54,16 @@ jobs:
           </head>
           <body>
           <form class="card" id="f" autocomplete="on" hidden>
-            <img src="icon-192.png" alt="Os Caras de Pau do Vestibular">
+            <img src="logo.png" alt="Os Caras de Pau do Vestibular">
             <h1>Os Caras de Pau do Vestibular</h1>
             <p>Entre com o usuário e a senha que o curso te passou</p>
             <div><label for="u">Usuário</label><input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
             <div><label for="s">Senha</label><input id="s" type="password" autocomplete="current-password" required></div>
             <div class="err" id="e" role="alert"></div>
             <button id="b" type="submit">Entrar</button>
-            <p>Esqueceu a senha? Peça à coordenação do curso para criar uma nova.</p>
+            <p>Esqueceu a senha? Peça à administração do curso para criar uma nova.</p>
           </form>
-          <div class="card" id="c"><img src="icon-192.png" alt=""><p>Carregando…</p></div>
+          <div class="card" id="c"><img src="logo.png" alt=""><p>Carregando…</p></div>
           <script>
           (function(){
           "use strict";
@@ -101,7 +101,7 @@ jobs:
           </html>
           FIM_INDEX
           cat > site/sw.js <<'FIM_SW'
-          const C="cdp-v1";const FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","favicon.png"];
+          const C="cdp-v2";const FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png","favicon.png","logo.png"];
           self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting();});
           self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});
           self.addEventListener("fetch",e=>{const u=new URL(e.request.url);if(e.request.method!=="GET"||u.origin!==location.origin)return;
@@ -114,8 +114,8 @@ jobs:
            "start_url": "./",
            "scope": "./",
            "display": "standalone",
-           "background_color": "#1e1b4b",
-           "theme_color": "#1e1b4b",
+           "background_color": "#1b222a",
+           "theme_color": "#1b222a",
            "lang": "pt-BR",
            "icons": [
             {
@@ -137,19 +137,118 @@ jobs:
            ]
           }
           FIM_MF
+          base64 -d > logo_l.png <<'FIM_LOGO'
+          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
+          7T63bq09jRShKotIpuBlkuOA8Axq+jpgGEjO7QzYelxRDFMAI0T40fMA8AhJVp8vJzkBG/Q3/JoBRFWQTnEs/CVxbCSdpOv8WZLM
+          jEay5jpPi1LuYHJmOsjimE1kYQQAHCHZCVOU24BnkNwS6EV3KVmWeTKrkizWfErPVZN806was+oBNWs37bLGbSLO13RCi9V6TGzp
+          vCH3V56ECY8qh+LyRwLiHy2UO9VeEzeOI7aazLXgcZKbACQ6yQxroGWyvJEQiIl16r0BHU65yAYnSef5OHRc7iDJollhMMMEYJ6b
+          VcLUiMtxuNJseCCzxk0n6y4tEoMnNZskD3YHAOtpt8tNJ1lXNyql0O2aAiDFUeNYANzvoHM/AJxx8nTzo5B+KKJxwLifJwVVbPpI
+          H4bWJVaLSgwL8sADWMTfecTcGcKyXO910eYgtxpYYPW4ta9l1eLszb0jUagcJTdrjBlhDXPXEIDFE9QAwBqi/F2IOcjVGkJubGHS
+          5yQhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEhISEh
+          ISHRKvDfbM8QXcA6qVEAAAAASUVORK5CYII=
+          FIM_LOGO
           python3 - <<'FIM_PY'
-          import glob
-          from PIL import Image,ImageDraw,ImageFont
-          fs=sorted(glob.glob('/usr/share/fonts/**/DejaVuSans-Bold.ttf',recursive=True))
-          def fnt(n):
-              return ImageFont.truetype(fs[0],n) if fs else ImageFont.load_default(size=n)
-          def icon(sz,pad,rad,path):
-              im=Image.new('RGB',(sz,sz),(30,27,75));d=ImageDraw.Draw(im)
-              p=int(sz*pad);d.rounded_rectangle([p,p,sz-p,sz-p],radius=int(sz*rad),fill=(250,204,21))
-              f=fnt(int((sz-2*p)*0.42));b=d.textbbox((0,0),'CP',font=f)
-              d.text(((sz-(b[2]-b[0]))/2-b[0],(sz-(b[3]-b[1]))/2-b[1]),'CP',font=f,fill=(30,27,75))
-              im.save(path)
-          icon(192,.12,.14,'site/icon-192.png');icon(512,.12,.14,'site/icon-512.png');icon(512,.22,.12,'site/icon-maskable-512.png');icon(180,.12,.14,'site/apple-touch-icon.png');icon(64,.06,.16,'site/favicon.png')
+          from PIL import Image,ImageDraw,ImageChops
+          BG=(27,34,42)
+          L=Image.open('logo_l.png').convert('L')
+          def logo(size,scale,circle=False):
+              out=Image.new('RGBA',(size,size),BG+(255,))
+              if circle:
+                  out=Image.new('RGBA',(size,size),(0,0,0,0));ImageDraw.Draw(out).ellipse([0,0,size-1,size-1],fill=BG+(255,))
+              n=int(size*scale);m=L.resize((n,n),Image.BICUBIC)
+              c=Image.new('L',(n,n),0);ImageDraw.Draw(c).ellipse([int(n*.04),int(n*.04),int(n*.96),int(n*.96)],fill=255)
+              m=ImageChops.multiply(m,c)
+              out.paste(Image.new('RGBA',(n,n),(255,255,255,255)),((size-n)//2,(size-n)//2),m);return out
+          logo(512,1.25).convert('RGB').save('site/icon-512.png');logo(192,1.25).convert('RGB').save('site/icon-192.png')
+          logo(512,1.0).convert('RGB').save('site/icon-maskable-512.png');logo(180,1.2).convert('RGB').save('site/apple-touch-icon.png')
+          logo(64,1.3).convert('RGB').save('site/favicon.png');logo(240,1.0,True).save('site/logo.png')
           FIM_PY
           ls -la site
       - uses: actions/upload-pages-artifact@v3
